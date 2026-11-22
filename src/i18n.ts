@@ -18,6 +18,7 @@ const zh: Dict = {
   'llm.online.keys': 'AI 在线 · {total} 住客（{keys} Key）',
   'llm.online.model': 'AI 在线 · {model}',
   'llm.offline': '本地引擎（未配置 API Key）',
+  'llm.local': '本地引擎',
   'llm.title': '点击打开「AI 接口」，可批量接入 Key 并按住客分配',
   'pause.title': '暂停 / 继续',
 
@@ -141,6 +142,7 @@ const zh: Dict = {
   'pf.random.face': '随机外貌',
   'pf.warmth': '亲疏倾向',
   'pf.form.hint': '修改后立即生效，并影响此后的决策与对话。点顶部「AI 接口」可批量接入 Key。',
+  'pf.form.hint.local': '修改后立即生效，并影响此后的决策与对话。',
 
   'form.name': '姓名',
   'form.gender': '性别',
@@ -354,6 +356,7 @@ const en: Dict = {
   'llm.online.keys': 'AI online · {total} residents ({keys} keys)',
   'llm.online.model': 'AI online · {model}',
   'llm.offline': 'Local engine (no API key)',
+  'llm.local': 'Local engine',
   'llm.title': 'Open "AI Keys" to add keys and assign them per resident',
   'pause.title': 'Pause / Resume',
 
@@ -471,6 +474,7 @@ const en: Dict = {
   'pf.random.face': 'Randomize look',
   'pf.warmth': 'Affinity bias',
   'pf.form.hint': 'Changes apply immediately and affect future decisions & dialogue. Use "AI Keys" at the top to add keys in bulk.',
+  'pf.form.hint.local': 'Changes apply immediately and affect future decisions & dialogue.',
 
   'form.name': 'Name',
   'form.gender': 'Gender',
