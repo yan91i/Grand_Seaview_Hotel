@@ -19,17 +19,14 @@ jobs:
       pages: read
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '22'
       - uses: actions/configure-pages@v5
-      - run: npm ci
-        working-directory: 'Server Version'
-      - run: npm run build:pages
-        working-directory: 'Server Version'
+      - run: |
+          mkdir -p "$RUNNER_TEMP/pages"
+          cp index.html "$RUNNER_TEMP/pages/"
+          cp -r assets "$RUNNER_TEMP/pages/"
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: 'Server Version/dist'
+          path: ${{ runner.temp }}/pages
 
   deploy:
     needs: build
