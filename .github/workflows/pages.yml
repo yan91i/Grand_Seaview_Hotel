@@ -24,10 +24,12 @@ jobs:
           node-version: '22'
       - uses: actions/configure-pages@v5
       - run: npm ci
+        working-directory: 'Server Version'
       - run: npm run build:pages
+        working-directory: 'Server Version'
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: 'Server Version/dist'
 
   deploy:
     needs: build
