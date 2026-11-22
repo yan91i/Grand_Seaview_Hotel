@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>望海楼旅馆 · AI 住客观察室</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+    <script type="module" crossorigin src="/Grand_Seaview_Hotel/assets/index-DQe6tVWo.js"></script>
+    <link rel="stylesheet" crossorigin href="/Grand_Seaview_Hotel/assets/index-76QEykYB.css">
+  </head>
+  <body>
+    <div id="app">
+      <div id="stage"></div>
+
+      <header class="hud hud-top">
+        <div class="brand-logo" title="Grand Seaview Hotel">
+          <span class="logo-grand">Grand</span>
+          <span class="logo-seaview">Seaview</span>
+          <span class="logo-hotel">Hotel</span>
+        </div>
+        <div class="clock" id="clock" data-i18n-key="clock.default">第 1 天 08:00</div>
+        <div class="top-right">
+          <span class="chip" id="llm-chip" data-i18n-key="llm.checking" data-i18n-title="llm.title">AI 引擎检测中…</span>
+          <div class="btn-group">
+            <button id="btn-pause" class="btn icon" data-i18n-title="pause.title" title="暂停 / 继续">⏸</button>
+            <button class="btn speed active" data-speed="1">x1</button>
+            <button class="btn speed" data-speed="2">x2</button>
+            <button class="btn speed" data-speed="4">x4</button>
+            <button class="btn speed" data-speed="8">x8</button>
+            <button id="btn-lang" class="btn" data-i18n-key="tool.lang" title="Language">中</button>
+          </div>
+        </div>
+      </header>
+
+      <div class="hud hud-floors">
+        <span class="floor-hint" data-i18n-key="floor.hint">楼层</span>
+        <div class="floor-switch" id="floor-switch"></div>
+      </div>
+
+      <aside class="panel panel-left" id="log-panel">
+        <div class="panel-head">
+          <h2 data-i18n-key="panel.log.title">住客动态</h2>
+          <button class="btn tiny" data-toggle="log-panel" data-i18n-key="panel.collapse">收起</button>
+        </div>
+        <ul class="log-list" id="log-list"></ul>
+      </aside>
+
+      <aside class="panel panel-right" id="profile-panel">
+        <div class="panel-head">
+          <h2 data-i18n-key="panel.profile.title">住客档案</h2>
+          <button class="btn tiny" data-toggle="profile-panel" data-i18n-key="panel.collapse">收起</button>
+        </div>
+        <div class="profile-body" id="profile-body">
+          <p class="hint" data-i18n-key="profile.empty2">点击画面中的角色，查看 TA 的性格、需求与心事。</p>
+        </div>
+      </aside>
+
+      <div class="hud hud-tools">
+        <button class="btn" id="btn-keys" data-i18n-key="tool.keys">AI 接口</button>
+        <button class="btn" id="btn-talk" data-i18n-key="tool.talk">对话</button>
+        <button class="btn" id="btn-logs" data-i18n-key="tool.logs">全部日志</button>
+        <button class="btn" id="btn-graph" data-i18n-key="tool.graph">关系网</button>
+        <button class="btn" id="btn-events" data-i18n-key="tool.events">导演事件</button>
+        <button class="btn" id="btn-coach" data-i18n-key="tool.coach">定制客人</button>
+        <button class="btn" id="btn-help" data-i18n-key="tool.help">玩法</button>
+      </div>
+
+      <footer class="hud hud-bottom">
+        <div class="chips" id="chips"></div>
+      </footer>
+
+      <div id="modal-root"></div>
+    </div>
+  </body>
+</html>
