@@ -1,5 +1,7 @@
 /** 与本地 LLM 代理通信的薄封装。任何失败都返回 null，交由调用方降级到本地引擎。 */
 
+import { IS_PAGES } from '../buildMode';
+
 const inflight = { count: 0, max: 3 };
 
 export type LlmMode = 'checking' | 'online' | 'offline';
@@ -18,6 +20,7 @@ interface LlmResult {
 }
 
 async function post(payload: Record<string, unknown>): Promise<LlmResult | null> {
+  if (IS_PAGES) return null;
   if (inflight.count >= inflight.max) return { ok: false, error: 'busy' };
   inflight.count++;
   try {
@@ -36,6 +39,7 @@ async function post(payload: Record<string, unknown>): Promise<LlmResult | null>
 }
 
 export async function checkHealth(): Promise<{ llm: boolean; model: string | null }> {
+  if (IS_PAGES) return { llm: false, model: null };
   try {
     const r = await fetch('/api/health');
     if (!r.ok) return { llm: false, model: null };
@@ -66,6 +70,7 @@ export async function llmText(system: string, user: string, maxTokens = 300, ove
 
 /** 测试某个 Key 是否可用（请求 /models，不消耗 token）。 */
 export async function testKey(override: LlmOverride): Promise<{ ok: boolean; error?: string; models?: number }> {
+  if (IS_PAGES) return { ok: false, error: 'LLM unavailable in Pages mode' };
   try {
     const resp = await fetch('/api/key-test', {
       method: 'POST',

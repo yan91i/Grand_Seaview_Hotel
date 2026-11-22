@@ -3,6 +3,8 @@
  * 持久化在 localStorage，刷新后仍保留。
  */
 
+import { IS_PAGES } from '../buildMode';
+
 export interface ApiKey {
   id: string;
   label: string;
@@ -45,7 +47,7 @@ function load(): KeyStore {
   }
 }
 
-let store: KeyStore = load();
+let store: KeyStore = IS_PAGES ? emptyStore() : load();
 const subs = new Set<() => void>();
 
 function persist(): void {

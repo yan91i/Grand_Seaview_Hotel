@@ -17,6 +17,7 @@ import { decideLocal, localConversation, thinkLocal, topicLabel } from './localB
 import { conversationSystem, conversationUser, decisionSystem, decisionUser } from './prompts';
 import { checkHealth, llmJSON, type LlmMode, type LlmOverride } from './llm';
 import { forcedLocal, getKeys, resolveKey, subscribeKeys } from './keys';
+import { IS_PAGES } from '../buildMode';
 
 /** 1x 速度下：1 现实秒 = 4 模拟分钟 */
 export const SIM_MIN_PER_SEC = 4;
@@ -147,7 +148,7 @@ export class Simulation {
   conversations: ActiveConversation[] = [];
   /** 已结束的对话存档，供「对话」面板回放 */
   transcripts: ConversationRecord[] = [];
-  llmMode: LlmMode = 'checking';
+  llmMode: LlmMode = IS_PAGES ? 'offline' : 'checking';
   llmModel: string | null = null;
   selectedId: string | null = null;
 
@@ -177,13 +178,15 @@ export class Simulation {
     }
     for (const def of CHARACTERS) this.addAgent(def);
 
-    checkHealth().then((h) => {
-      this.envLlm = h.llm;
-      this.llmModel = h.model;
-      this.refreshLlmStatus();
-    });
-    // 用户批量接入/分配 Key 时，实时刷新在线状态
-    subscribeKeys(() => this.refreshLlmStatus());
+    if (!IS_PAGES) {
+      checkHealth().then((h) => {
+        this.envLlm = h.llm;
+        this.llmModel = h.model;
+        this.refreshLlmStatus();
+      });
+      // 用户批量接入/分配 Key 时，实时刷新在线状态
+      subscribeKeys(() => this.refreshLlmStatus());
+    }
     this.log({
       t: this.time,
       kind: 'system',
@@ -296,7 +299,7 @@ export class Simulation {
   /* ------------------------- AI 引擎状态 ------------------------- */
   /** 返回该住客要使用的接口配置：ApiKey=用指定 Key；undefined=用服务端 .env；null=走本地引擎。 */
   private overrideFor(a: Agent): LlmOverride | null | undefined {
-    if (forcedLocal(a.def.id)) return null;
+    if (IS_PAGES || forcedLocal(a.def.id)) return null;
     const k = resolveKey(a.def.id);
     if (k) return k;
     if (this.envLlm) return undefined;
@@ -305,7 +308,7 @@ export class Simulation {
 
   /** 对话由两人共同完成，优先取任意一方分配的 Key，其次 .env。 */
   private convoOverride(a: Agent, b: Agent): LlmOverride | null | undefined {
-    if (forcedLocal(a.def.id) && forcedLocal(b.def.id)) return null;
+    if (IS_PAGES || (forcedLocal(a.def.id) && forcedLocal(b.def.id))) return null;
     const ka = forcedLocal(a.def.id) ? null : resolveKey(a.def.id);
     const kb = forcedLocal(b.def.id) ? null : resolveKey(b.def.id);
     if (ka) return ka;
@@ -319,7 +322,7 @@ export class Simulation {
     const total = this.agents.length;
     const online = this.agents.filter((a) => this.overrideFor(a) !== null).length;
     this.llmMode = online > 0 ? 'online' : 'offline';
-    this.emit('llm-status', { mode: this.llmMode, model: this.llmModel, online, total, userKeys: getKeys().length });
+    this.emit('llm-status', { mode: this.llmMode, model: this.llmModel, online, total, userKeys: IS_PAGES ? 0 : getKeys().length });
   }
 
   /* ------------------------- 实时想法 ------------------------- */
