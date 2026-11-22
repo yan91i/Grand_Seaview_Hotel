@@ -22,6 +22,7 @@ import {
 import { testKey } from '../game/llm';
 import type { Agent, BigFive, CharacterDef, ConversationRecord, Gender, HairStyle, LogEntry, Needs, SpritePalette } from '../game/types';
 import { applyI18n, getLang, onLangChange, t, toggleLang } from '../i18n';
+import { IS_PAGES } from '../buildMode';
 
 const STATE_LABEL = (): Record<string, string> => ({
   idle: t('state.idle'),
@@ -354,25 +355,33 @@ export function createHud(sim: Simulation): void {
 
   /* ---------------- LLM 状态 ---------------- */
   const llmChip = $('llm-chip');
-  sim.on('llm-status', (p) => {
-    const d = p as { mode: string; model: string | null; online: number; total: number; userKeys: number };
-    if (d.mode === 'online') {
-      llmChip.className = 'chip online';
-      if (d.online < d.total) {
-        llmChip.textContent = t('llm.online.n', { n: d.online, total: d.total });
-      } else if (d.userKeys > 0) {
-        llmChip.textContent = t('llm.online.keys', { total: d.total, keys: d.userKeys });
+  if (IS_PAGES) {
+    llmChip.className = 'chip offline';
+    llmChip.dataset.i18nKey = 'llm.local';
+    llmChip.textContent = t('llm.local');
+    llmChip.removeAttribute('data-i18n-title');
+    llmChip.removeAttribute('title');
+  } else {
+    sim.on('llm-status', (p) => {
+      const d = p as { mode: string; model: string | null; online: number; total: number; userKeys: number };
+      if (d.mode === 'online') {
+        llmChip.className = 'chip online';
+        if (d.online < d.total) {
+          llmChip.textContent = t('llm.online.n', { n: d.online, total: d.total });
+        } else if (d.userKeys > 0) {
+          llmChip.textContent = t('llm.online.keys', { total: d.total, keys: d.userKeys });
+        } else {
+          llmChip.textContent = t('llm.online.model', { model: d.model ?? 'LLM' });
+        }
       } else {
-        llmChip.textContent = t('llm.online.model', { model: d.model ?? 'LLM' });
+        llmChip.className = 'chip offline';
+        llmChip.textContent = t('llm.offline');
       }
-    } else {
-      llmChip.className = 'chip offline';
-      llmChip.textContent = t('llm.offline');
-    }
-    llmChip.title = t('llm.title');
-  });
-  llmChip.style.cursor = 'pointer';
-  llmChip.addEventListener('click', () => openKeyManager());
+      llmChip.title = t('llm.title');
+    });
+    llmChip.style.cursor = 'pointer';
+    llmChip.addEventListener('click', () => openKeyManager());
+  }
 
   /* ---------------- 事件日志 ---------------- */
   const logList = $('log-list');
@@ -397,7 +406,7 @@ export function createHud(sim: Simulation): void {
     `<div class="bar-row"><span class="bar-name">${name}</span><div class="bar"><i style="width:${pct}%;background:${color}"></i></div><span>${val}</span></div>`;
 
   const aiLabel = (id: string): string => {
-    if (forcedLocal(id)) return t('pf.ai.local');
+    if (IS_PAGES || forcedLocal(id)) return t('pf.ai.local');
     const k = resolveKey(id);
     return k ? t('pf.ai.key', { label: k.label }) : t('pf.ai.default');
   };
@@ -564,9 +573,11 @@ export function createHud(sim: Simulation): void {
         .join('')}
       <div class="section-title">${t('pf.section.warmth')}</div>
       <div class="slider-row"><span>${t('pf.warmth')}</span><input type="range" min="-20" max="20" step="1" data-w="warmth" value="${d.warmth}"><b data-wv>${d.warmth}</b></div>
-      <div class="section-title">${t('pf.section.ai')}</div>
-      <div class="form-row col"><select data-key>${keyOptions(d.id)}</select></div>
-      <p class="hint">${t('pf.form.hint')}</p>
+      ${IS_PAGES ? '' : `
+        <div class="section-title">${t('pf.section.ai')}</div>
+        <div class="form-row col"><select data-key>${keyOptions(d.id)}</select></div>
+      `}
+      <p class="hint">${t(IS_PAGES ? 'pf.form.hint.local' : 'pf.form.hint')}</p>
     `;
   };
 
@@ -640,11 +651,13 @@ export function createHud(sim: Simulation): void {
       });
     });
 
-    form.querySelector<HTMLSelectElement>('[data-key]')?.addEventListener('change', (e) => {
-      if (!currentId) return;
-      assignKey(currentId, (e.target as HTMLSelectElement).value);
-      paint();
-    });
+    if (!IS_PAGES) {
+      form.querySelector<HTMLSelectElement>('[data-key]')?.addEventListener('change', (e) => {
+        if (!currentId) return;
+        assignKey(currentId, (e.target as HTMLSelectElement).value);
+        paint();
+      });
+    }
   };
 
   const toggleEdit = () => {
@@ -1138,7 +1151,11 @@ export function createHud(sim: Simulation): void {
     build();
   }
 
-  $('btn-keys').addEventListener('click', () => openKeyManager());
+  if (IS_PAGES) {
+    $('btn-keys').remove();
+  } else {
+    $('btn-keys').addEventListener('click', () => openKeyManager());
+  }
 
   /* coach：定制客人 */
   let coach: CoachInput = coachDraft();
@@ -1319,7 +1336,7 @@ export function createHud(sim: Simulation): void {
         <li>${t('help.item15')}</li>
         <li>${t('help.item16')}</li>
         <li>${t('help.item17')}</li>
-        <li>${t('help.item18')}</li>
+        ${IS_PAGES ? '' : `<li>${t('help.item18')}</li>`}
         <li>${t('help.item19')}</li>
       </ul>
     `);
