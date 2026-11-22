@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  base: mode === 'pages' ? '/Grand_Seaview_Hotel/' : '/',
   server: {
     host: '0.0.0.0',
     port: 5173,
@@ -15,4 +16,4 @@ export default defineConfig({
     target: 'es2020',
     chunkSizeWarningLimit: 1600,
   },
-});
+}));
